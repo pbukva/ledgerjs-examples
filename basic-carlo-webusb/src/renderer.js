@@ -1,6 +1,6 @@
 import "babel-polyfill";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
-import AppBtc from "@ledgerhq/hw-app-btc";
+import AppEth from "@ledgerhq/hw-app-eth";
 
 const initial =
   "<h1>Connect your Ledger and open Bitcoin app. Click anywhere to start...</h1>";
@@ -13,20 +13,20 @@ document.body.addEventListener("click", async () => {
   try {
     const transport = await TransportWebUSB.create();
     transport.setDebugMode(true);
-    const appBtc = new AppBtc(transport);
-    const { bitcoinAddress } = await appBtc.getWalletPublicKey(
-      "44'/0'/0'/0/0",
+    const appEth = new AppEth(transport);
+    const { bitcoinAddress } = await appEth.getAddress(
+      "44'/60'/0'/0/0",
       false
     );
     const h2 = document.createElement("h2");
     h2.textContent = bitcoinAddress;
     $main.innerHTML = "<h1>Your first Bitcoin address:</h1>";
     $main.appendChild(h2);
-    await appBtc.getWalletPublicKey("44'/0'/0'/0/0", true);
+    await appEth.getAddress("44'/60'/0'/0/0", true);
   } catch (e) {
     const $err = document.createElement("code");
     $err.style.color = "#f66";
-    $err.textContent = String(e.message || e);
+    $err.textContent = String(e);
     $main.appendChild($err);
   }
 });
