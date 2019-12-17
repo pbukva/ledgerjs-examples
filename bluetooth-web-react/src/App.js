@@ -39,31 +39,33 @@ class DeviceSelectionScreen extends Component {
 class ShowAddressScreen extends Component {
   state = {
     error: null,
-    address: null
+    address: null,
+    publicKey: null
   };
 
   async componentDidMount() {
     while (!this.state.address) {
       if (this.unmounted) return;
-      await this.fetchAddress(false);
+      await this.queryEthAddress(false);
       await delay(500);
     }
-    this.fetchAddress(true);
+    this.queryEthAddress(true);
   }
 
   async componentWillUnmount() {
     this.unmounted = true;
   }
 
-  fetchAddress = async verify => {
+  queryEthAddress = async verify => {
     const { transport } = this.props;
     try {
       const eth = new AppEth(transport);
       const path = "44'/60'/0'/0/0"; // HD derivation path
       const r = await eth.getAddress(path, verify);
       const address = eip55.encode(r.address);
+      const publicKey = r.publicKey;
       if (this.unmounted) return;
-      this.setState({ address });
+      this.setState({ address, publicKey });
     } catch (error) {
       // in this case, user is likely not on Ethereum app
       console.warn("Failed: " + error.message);
@@ -74,7 +76,7 @@ class ShowAddressScreen extends Component {
   };
 
   render() {
-    const { address, error } = this.state;
+    const { error, address, publicKey } = this.state;
 
     return (
       <div className="ShowAddressScreen">
@@ -94,6 +96,7 @@ class ShowAddressScreen extends Component {
             <strong>Ledger Live Ethereum Account 1</strong>
             <QRCode data={address} size={300} />
             <strong>{address}</strong>
+            <strong>{publicKey}</strong>
           </>
         )}
       </div>
